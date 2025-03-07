@@ -14,9 +14,7 @@ jobs:
   approve:
     name: Auto-approve backport
     runs-on: ubuntu-latest
-    if: |
-      startsWith(github.event.pull_request.head.ref, 'backport') &&
-      github.event.pull_request.user.login == 'robo-turtle'
+    if: startsWith(github.head_ref, 'backport/') && (github.actor == 'robo-turtle')
     permissions:
       pull-requests: write
     steps:

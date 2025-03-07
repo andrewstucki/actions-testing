@@ -7,8 +7,8 @@ run: once
 shopt: [globstar]
 
 tasks:
-  backports:
-    desc: "Get all pending backports for a branch"
+  pending-prs:
+    desc: "Get all pending PRs for watched branches"
     silent: true
     cmds:
-      - ./support/scripts/pending-backports andrewstucki/actions-testing {{.CLI_ARGS}}
+      - ./.github/workflows/scripts/pending-prs terminal andrewstucki/actions-testing

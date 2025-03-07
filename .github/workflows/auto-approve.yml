@@ -1,7 +1,8 @@
 name: Auto-Approve Backport
 
 on:
-  pull_request:
+  pull_request_target:
+    types: ["labeled", "opened", "synchronize"]
 
 jobs:
   approve:

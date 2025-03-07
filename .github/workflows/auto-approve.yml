@@ -8,7 +8,7 @@ jobs:
   approve:
     name: Auto-approve backport
     runs-on: ubuntu-latest
-    if: startsWith(github.head_ref, 'backport/')
+    if: ${{ startsWith(github.event.pull_request.head.ref, 'backport/') }}
     permissions:
       pull-requests: write
     steps:

@@ -12,7 +12,7 @@ jobs:
         id: generate-prs
         run: |
           ./.github/workflows/scripts/pending-prs slack andrewstucki/actions-testing > payload.json
-          echo "has-prs=$(cat payload.json | wc -l)\n" >> $GITHUB_OUTPUT
+          echo "has-prs=$(cat payload.json | wc -l)" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ github.token }}
       - name: See output

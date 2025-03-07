@@ -12,12 +12,12 @@ jobs:
         id: generate-prs
         run: |
           ./.github/workflows/scripts/pending-prs slack andrewstucki/actions-testing > payload.json
-          echo "has-prs=$(cat payload.json | wc)\n" >> $GITHUB_OUTPUT
+          echo "has-prs=$(cat payload.json | wc -l)\n" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ github.token }}
       - name: See output
         run: |
-          echo "${{ steps.generate-prs.outputs.has-prs }}""
+          echo "${{ steps.generate-prs.outputs.has-prs }}"
         env:
           GH_TOKEN: ${{ github.token }}
       - name: Post message to Slack channel

@@ -2,13 +2,14 @@ name: Auto-Approve Backport
 
 on:
   pull_request_target:
-    types: ["labeled", "opened", "synchronize"]
+    branches-ignore:
+      - main
 
 jobs:
   approve:
     name: Auto-approve backport
     runs-on: ubuntu-latest
-    if: ${{ startsWith(github.event.pull_request.head.ref, 'backport/') }}
+    if: startsWith(github.head_ref, 'backport/') && (github.actor == 'robo-turtle')
     permissions:
       pull-requests: write
     steps:

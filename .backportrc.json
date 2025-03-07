@@ -2,6 +2,7 @@
     "fork": false,
     "repoOwner": "andrewstucki",
     "repoName": "actions-testing",
+    "autoMerge": true,
     "targetBranchChoices": ["v1.0.0"],
     "targetPRLabels": ["backport"],
     "branchLabelMapping": {

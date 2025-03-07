@@ -1,0 +1,5 @@
+licenses: ["MIT"]
+matches:
+  - extension: .go
+    directory: templater
+    license: BSL

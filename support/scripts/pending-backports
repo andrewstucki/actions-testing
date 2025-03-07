@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+export BROWSER=echo
+
+gh search prs --repo=$1 --label backport --state=open --base $2 -w | awk '{print substr($0, 1, length($0)-12)}' 2> /dev/null
+echo
+gh search prs --repo=$1 --label backport --state=open --json url,number,title,updatedAt --template '{{range .}}{{tablerow (printf "[#%v](%s)" .number .url) .title (timeago .updatedAt)}}{{end}}' --base $2 | cat

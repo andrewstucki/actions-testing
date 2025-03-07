@@ -1,0 +1,14 @@
+version: '3'
+
+# if a task is referenced multiple times, only run it once
+run: once
+
+# configure bash to recursively expand **
+shopt: [globstar]
+
+tasks:
+  backports:
+    desc: "Get all pending backports for a branch"
+    silent: true
+    cmds:
+      - ./support/scripts/pending-backports andrewstucki/actions-testing {{.CLI_ARGS}}

@@ -2,22 +2,13 @@ name: Auto-Approve Backport
 
 on:
   pull_request_target:
-    branches-ignore:
-      - main
-  workflow_dispatch:
-    inputs: 
-      pullRequestNumber:
-        description: Pull request number to auto-approve
-        required: false
 
 jobs:
   approve:
     name: Auto-approve backport
     runs-on: ubuntu-latest
-    if: startsWith(github.head_ref, 'backport/')
+    if: startsWith(github.head_ref, 'backport/') && (github.actor == 'robo-turtle')
     permissions:
       pull-requests: write
     steps:
       - uses: hmarr/auto-approve-action@v4
-        with:
-          pull-request-number: ${{ github.event.inputs.pullRequestNumber }}

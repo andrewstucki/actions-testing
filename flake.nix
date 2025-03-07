@@ -48,6 +48,7 @@
               pkgs.gh
               pkgs.gnused # Stream Editor, used by some build scripts.
               pkgs.go-task
+              pkgs.yq-go
             ];
           };
         };

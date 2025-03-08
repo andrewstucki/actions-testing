@@ -1,3 +1,8 @@
+{{- /*
+Copyright (c) Andrew Stucki
+SPDX-License-Identifier: MIT
+*/ -}}
+
 version: '3'
 
 # if a task is referenced multiple times, only run it once

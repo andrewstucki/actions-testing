@@ -1,3 +1,6 @@
+// Copyright (c) Andrew Stucki
+// SPDX-License-Identifier: MIT
+
 package templates
 
 import (

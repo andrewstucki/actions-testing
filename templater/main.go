@@ -1,7 +1,6 @@
-/*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
+// Copyright (c) Andrew Stucki
+// SPDX-License-Identifier: MIT
 
-*/
 package main
 
 import "github.com/andrewstucki/actions-testing/templater/cmd"

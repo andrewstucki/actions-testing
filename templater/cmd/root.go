@@ -1,7 +1,6 @@
-/*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
+// Copyright (c) Andrew Stucki
+// SPDX-License-Identifier: MIT
 
-*/
 package cmd
 
 import (
@@ -9,8 +8,6 @@ import (
 
 	"github.com/spf13/cobra"
 )
-
-
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -47,5 +44,3 @@ func init() {
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
-
-

@@ -1,5 +1,8 @@
-licenses: ["MIT"]
+organization: Andrew Stucki
+top_level_license: "MIT"
 matches:
-  - extension: .go
+  - type: go
+    short: true
+    extension: .go
     directory: templater
-    license: BSL
+    license: MIT

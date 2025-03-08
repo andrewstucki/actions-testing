@@ -14,8 +14,8 @@ buildGoModule rec {
   src = fetchFromGitHub {
     owner = "redpanda-data";
     repo = "redpanda-operator";
-    rev = "v${version}-24.3.6";
-    hash = "sha256-/bHiL1VnAyb8oAIYjAOmg68YDymJTktJBk6DE902Q6s=";
+    rev = "adb7a5bf652791b2451edaff0f9b87bc14796ef4";
+    hash = "sha256-ndu9Aql1TsweAFEdqrEf/mHLbO1moaLvqEvVP/XhCuM=";
   };
 
   sourceRoot = "source/licenseupdater";

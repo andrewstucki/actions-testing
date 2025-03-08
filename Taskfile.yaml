@@ -7,6 +7,19 @@ run: once
 shopt: [globstar]
 
 tasks:
+  generate-third-party-licenses:
+    dir: templater
+    method: checksum
+    generates:
+      - third_party_licenses.md
+    sources:
+      - ./go.mod
+      - ./go.sum
+    cmds: 
+      - |
+        go-licenses report ./... --template ../support/files/third_party_licenses.md.tpl \
+        --ignore github.com/andrewstucki/actions-testing/templater > ../third_party_licenses.md
+
   pending-prs:
     desc: "Get all pending PRs for watched branches"
     silent: true

@@ -21,10 +21,12 @@ var ignoreOnce = false
 
 // TemplateInfo is the info to render into our templates.
 type TemplateInfo struct {
+	Copyright         string
 	Organization      string
 	Repository        string
 	Versions          []string
 	Source            string
+	License           string
 	LicenseManagement bool
 }
 
@@ -34,6 +36,9 @@ func (t *TemplateInfo) NormalizeAndValidate() error {
 	if t.Source == "" {
 		t.Source = "."
 	}
+	if t.Copyright == "" {
+		t.Copyright = t.Organization
+	}
 
 	// Validation
 	var errs []error
@@ -42,6 +47,9 @@ func (t *TemplateInfo) NormalizeAndValidate() error {
 	}
 	if t.Repository == "" {
 		errs = append(errs, errors.New("Repository must be specified"))
+	}
+	if t.License == "" {
+		errs = append(errs, errors.New("License must be specified"))
 	}
 
 	return errors.Join(errs...)
@@ -106,12 +114,11 @@ func Render(info TemplateInfo) ([]File, error) {
 		return nil, err
 	}
 
-	var buffer bytes.Buffer
 	var errs []error
 	var renderedFiles []File
 
 	for _, file := range files {
-		buffer.Reset()
+		var buffer bytes.Buffer
 
 		name := strings.TrimSuffix(file.Name(), ".tpl")
 		once := strings.HasSuffix(name, ".once")
@@ -132,6 +139,11 @@ func Render(info TemplateInfo) ([]File, error) {
 		err = tmpl.Execute(&buffer, info)
 		if err != nil {
 			errs = append(errs, err)
+			continue
+		}
+
+		// don't render any conditionally rendered files
+		if strings.TrimSpace(buffer.String()) == "" {
 			continue
 		}
 

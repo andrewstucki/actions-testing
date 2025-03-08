@@ -39,6 +39,7 @@ func TestRenderTo(t *testing.T) {
 			info: TemplateInfo{
 				Organization: "org",
 				Repository:   "repo",
+				License:      "MIT",
 			},
 		},
 		"license": {
@@ -46,6 +47,7 @@ func TestRenderTo(t *testing.T) {
 				LicenseManagement: true,
 				Organization:      "org",
 				Repository:        "repo",
+				License:           "MIT",
 			},
 		},
 		"source": {
@@ -53,7 +55,9 @@ func TestRenderTo(t *testing.T) {
 				Source:            "source",
 				LicenseManagement: true,
 				Organization:      "org",
+				Copyright:         "My Organization",
 				Repository:        "repo",
+				License:           "MIT",
 			},
 		},
 	} {

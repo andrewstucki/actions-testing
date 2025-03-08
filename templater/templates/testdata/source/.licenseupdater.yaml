@@ -1,0 +1,8 @@
+organization: My Organization
+top_level_license: MIT
+matches:
+  - type: go
+    short: true
+    extension: .go
+    directory: source
+    license: MIT

@@ -14,10 +14,15 @@ import (
 
 const goldenFileDirectory = "testdata"
 
-var renderGolden = false
+var (
+	renderGolden   = false
+	goldenRenderer = &Renderer{
+		IgnoreOnce: true,
+		Suffix:     "golden",
+	}
+)
 
 func init() {
-	ignoreOnce = true
 	if os.Getenv("RENDER_GOLDEN_FILES") == "true" {
 		renderGolden = true
 	}
@@ -67,14 +72,14 @@ func TestRenderTo(t *testing.T) {
 			testDirectory := path.Join(directory, fileName)
 
 			if renderGolden && tt.err == nil {
-				require.NoError(t, RenderTo(goldenDirectory, tt.info))
+				require.NoError(t, goldenRenderer.RenderTo(goldenDirectory, tt.info))
 			}
 
 			if tt.err != nil {
 				require.EqualError(t, RenderTo(testDirectory, tt.info), tt.err.Error())
 			} else {
 				require.NoError(t, RenderTo(testDirectory, tt.info))
-				requireDirectoriesEqual(t, goldenDirectory, testDirectory)
+				requireGoldenDirectoriesEqual(t, goldenDirectory, testDirectory)
 			}
 		})
 
@@ -86,10 +91,10 @@ type testFile struct {
 	data string
 }
 
-func requireDirectoriesEqual(t *testing.T, expected, actual string) {
+func requireGoldenDirectoriesEqual(t *testing.T, expected, actual string) {
 	t.Helper()
 
-	mapToFiles := func(directory string) []testFile {
+	mapToFiles := func(directory, suffix string) []testFile {
 		files, err := os.ReadDir(directory)
 		require.NoError(t, err)
 
@@ -98,15 +103,15 @@ func requireDirectoriesEqual(t *testing.T, expected, actual string) {
 			data, err := os.ReadFile(path.Join(directory, file.Name()))
 			require.NoError(t, err)
 			mapped = append(mapped, testFile{
-				name: file.Name(),
+				name: strings.TrimSuffix(file.Name(), "."+suffix),
 				data: string(data),
 			})
 		}
 		return mapped
 	}
 
-	expectedFiles := mapToFiles(expected)
-	actualFiles := mapToFiles(actual)
+	expectedFiles := mapToFiles(expected, "golden")
+	actualFiles := mapToFiles(actual, "")
 
 	require.ElementsMatch(t, expectedFiles, actualFiles)
 }

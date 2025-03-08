@@ -14,10 +14,12 @@ import (
 	"text/template"
 )
 
-//go:embed files/*.tpl
-var templateFiles embed.FS
+var (
+	//go:embed files/*.tpl
+	templateFiles embed.FS
 
-var ignoreOnce = false
+	defaultRenderer = &Renderer{}
+)
 
 // TemplateInfo is the info to render into our templates.
 type TemplateInfo struct {
@@ -76,9 +78,23 @@ type File struct {
 	Data []byte
 }
 
+// Renderer customizes the rendering behavior of the templates.
+type Renderer struct {
+	// Ignore rendering a template only once, always render it
+	// even if it already exists.
+	IgnoreOnce bool
+	// Suffix adds the given suffix to every file
+	Suffix string
+}
+
+// Render renders templates to the filesystem using the default renderer.
+func RenderTo(directory string, info TemplateInfo) error {
+	return defaultRenderer.RenderTo(directory, info)
+}
+
 // RenderTo renders all of our templates using the given info
 // into the given directory.
-func RenderTo(directory string, info TemplateInfo) error {
+func (r *Renderer) RenderTo(directory string, info TemplateInfo) error {
 	if err := os.MkdirAll(directory, 0755); err != nil {
 		return err
 	}
@@ -91,8 +107,12 @@ func RenderTo(directory string, info TemplateInfo) error {
 	var errs []error
 	for _, file := range files {
 		fileName := path.Join(directory, file.Name)
+		if r.Suffix != "" {
+			fileName += "." + r.Suffix
+		}
+
 		_, err := os.Stat(fileName)
-		if os.IsNotExist(err) || !file.Once || ignoreOnce {
+		if os.IsNotExist(err) || !file.Once || r.IgnoreOnce {
 			if err := os.WriteFile(fileName, file.Data, 0644); err != nil {
 				errs = append(errs, fmt.Errorf("writing file: %w", err))
 			}
@@ -102,9 +122,14 @@ func RenderTo(directory string, info TemplateInfo) error {
 	return errors.Join(errs...)
 }
 
+// Render renders templates to in memory files using the default renderer.
+func Render(info TemplateInfo) ([]File, error) {
+	return defaultRenderer.Render(info)
+}
+
 // Render renders all of our templates using the given info
 // and returns all of the rendered templates.
-func Render(info TemplateInfo) ([]File, error) {
+func (r *Renderer) Render(info TemplateInfo) ([]File, error) {
 	if err := info.NormalizeAndValidate(); err != nil {
 		return nil, err
 	}

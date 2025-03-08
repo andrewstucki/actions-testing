@@ -8,6 +8,7 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path"
 	"strings"
@@ -15,7 +16,7 @@ import (
 )
 
 var (
-	//go:embed files/*.tpl
+	//go:embed all:files
 	templateFiles embed.FS
 
 	defaultRenderer = &Renderer{}
@@ -74,6 +75,8 @@ type File struct {
 	// after the first time it's rendered. If the file exists
 	// it will not be written again.
 	Once bool
+	// Executable means the file should be marked executable when rendered
+	Executable bool
 	// The rendered file contents
 	Data []byte
 }
@@ -83,6 +86,8 @@ type Renderer struct {
 	// Ignore rendering a template only once, always render it
 	// even if it already exists.
 	IgnoreOnce bool
+	// Ignore setting executable permissions on files.
+	IgnoreExecutable bool
 	// Suffix adds the given suffix to every file
 	Suffix string
 }
@@ -95,10 +100,6 @@ func RenderTo(directory string, info TemplateInfo) error {
 // RenderTo renders all of our templates using the given info
 // into the given directory.
 func (r *Renderer) RenderTo(directory string, info TemplateInfo) error {
-	if err := os.MkdirAll(directory, 0755); err != nil {
-		return err
-	}
-
 	files, err := Render(info)
 	if err != nil {
 		return err
@@ -107,13 +108,23 @@ func (r *Renderer) RenderTo(directory string, info TemplateInfo) error {
 	var errs []error
 	for _, file := range files {
 		fileName := path.Join(directory, file.Name)
+		parent := path.Dir(fileName)
+		if err := os.MkdirAll(parent, 0755); err != nil {
+			errs = append(errs, fmt.Errorf("creating parent directory: %w", err))
+			continue
+		}
+
 		if r.Suffix != "" {
 			fileName += "." + r.Suffix
 		}
 
 		_, err := os.Stat(fileName)
 		if os.IsNotExist(err) || !file.Once || r.IgnoreOnce {
-			if err := os.WriteFile(fileName, file.Data, 0644); err != nil {
+			permissions := os.FileMode(0644)
+			if file.Executable && !r.IgnoreExecutable {
+				permissions = 0755
+			}
+			if err := os.WriteFile(fileName, file.Data, permissions); err != nil {
 				errs = append(errs, fmt.Errorf("writing file: %w", err))
 			}
 		}
@@ -134,49 +145,85 @@ func (r *Renderer) Render(info TemplateInfo) ([]File, error) {
 		return nil, err
 	}
 
-	files, err := templateFiles.ReadDir("files")
-	if err != nil {
-		return nil, err
-	}
-
-	var errs []error
 	var renderedFiles []File
+	var errs []error
 
-	for _, file := range files {
-		var buffer bytes.Buffer
-
-		name := strings.TrimSuffix(file.Name(), ".tpl")
-		once := strings.HasSuffix(name, ".once")
-		name = strings.TrimSuffix(name, ".once")
-
-		data, err := templateFiles.ReadFile("files/" + file.Name())
+	if err := fs.WalkDir(templateFiles, ".", func(fullPath string, d fs.DirEntry, err error) error {
 		if err != nil {
 			errs = append(errs, err)
-			continue
+			return nil
 		}
 
-		tmpl, err := template.New("").Parse(string(data))
-		if err != nil {
-			errs = append(errs, err)
-			continue
+		if !d.IsDir() {
+			var buffer bytes.Buffer
+			once := false
+
+			name := strings.TrimPrefix(fullPath, "files/")
+			isTemplate := strings.HasSuffix(name, ".tpl")
+			if isTemplate {
+				name = strings.TrimSuffix(name, ".tpl")
+				once = strings.HasSuffix(name, ".once")
+				name = strings.TrimSuffix(name, ".once")
+			}
+
+			isFile := strings.HasSuffix(name, ".file")
+			if isFile {
+				once = true
+				name = strings.TrimSuffix(name, ".file")
+			}
+
+			if !isFile && !isTemplate {
+				return nil
+			}
+
+			isExecute := strings.HasSuffix(name, ".execute")
+			name = strings.TrimSuffix(name, ".execute")
+
+			data, err := templateFiles.ReadFile(fullPath)
+			if err != nil {
+				errs = append(errs, err)
+				return nil
+			}
+
+			switch {
+			case isTemplate:
+				tmpl, err := template.New("").Parse(string(data))
+				if err != nil {
+					errs = append(errs, err)
+					return nil
+				}
+
+				err = tmpl.Execute(&buffer, info)
+				if err != nil {
+					errs = append(errs, err)
+					return nil
+				}
+			case isFile:
+				if _, err := buffer.WriteString(string(data)); err != nil {
+					errs = append(errs, err)
+					return nil
+				}
+			default:
+				errs = append(errs, fmt.Errorf("unknown template type for file: %q", fullPath))
+				return nil
+			}
+
+			// don't render any conditionally rendered files
+			if strings.TrimSpace(buffer.String()) == "" {
+				return nil
+			}
+
+			renderedFiles = append(renderedFiles, File{
+				Data:       buffer.Bytes(),
+				Name:       name,
+				Once:       once,
+				Executable: isExecute,
+			})
 		}
 
-		err = tmpl.Execute(&buffer, info)
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
-
-		// don't render any conditionally rendered files
-		if strings.TrimSpace(buffer.String()) == "" {
-			continue
-		}
-
-		renderedFiles = append(renderedFiles, File{
-			Data: buffer.Bytes(),
-			Name: name,
-			Once: once,
-		})
+		return nil
+	}); err != nil {
+		errs = append(errs, err)
 	}
 
 	if len(errs) != 0 {

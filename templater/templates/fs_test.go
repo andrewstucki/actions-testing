@@ -4,6 +4,7 @@
 package templates
 
 import (
+	"io/fs"
 	"os"
 	"path"
 	"strings"
@@ -17,8 +18,9 @@ const goldenFileDirectory = "testdata"
 var (
 	renderGolden   = false
 	goldenRenderer = &Renderer{
-		IgnoreOnce: true,
-		Suffix:     "golden",
+		IgnoreOnce:       true,
+		IgnoreExecutable: true,
+		Suffix:           "golden",
 	}
 )
 
@@ -95,18 +97,29 @@ func requireGoldenDirectoriesEqual(t *testing.T, expected, actual string) {
 	t.Helper()
 
 	mapToFiles := func(directory, suffix string) []testFile {
-		files, err := os.ReadDir(directory)
-		require.NoError(t, err)
-
 		mapped := []testFile{}
-		for _, file := range files {
-			data, err := os.ReadFile(path.Join(directory, file.Name()))
-			require.NoError(t, err)
+		dirFS := os.DirFS(directory)
+		err := fs.WalkDir(dirFS, ".", func(fullPath string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+
+			if d.IsDir() {
+				return nil
+			}
+
+			data, err := fs.ReadFile(dirFS, fullPath)
+			if err != nil {
+				return err
+			}
+
 			mapped = append(mapped, testFile{
-				name: strings.TrimSuffix(file.Name(), "."+suffix),
+				name: strings.TrimSuffix(d.Name(), "."+suffix),
 				data: string(data),
 			})
-		}
+			return nil
+		})
+		require.NoError(t, err)
 		return mapped
 	}
 

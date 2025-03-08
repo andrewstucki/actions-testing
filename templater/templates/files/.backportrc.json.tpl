@@ -1,0 +1,12 @@
+{
+    "fork": false,
+    "repoOwner": "andrewstucki",
+    "repoName": "actions-testing",
+    "autoMerge": true,
+    "targetBranchChoices": ["v1.0.x"],
+    "targetPRLabels": ["backport"],
+    "branchLabelMapping": {
+      "^v(\\d+).(\\d+).\\d+$": "v$1.$2.x"
+    }
+  }
+  

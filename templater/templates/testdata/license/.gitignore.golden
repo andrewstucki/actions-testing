@@ -1,0 +1,14 @@
+# Executables
+*.exe
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+*.app
+/*build*
+*.idea
+.DS_Store
+# vim
+.*.sw?
+# direnv files
+.direnv/
+# task cache directory
+.task/

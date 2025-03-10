@@ -5,7 +5,7 @@
     "repoName": "{{ .Repository }}",
     "autoMerge": true,
     "targetBranchChoices": {{ .JSONBranches }},
-    "targetPRLabels": ["{{ .Label }}"],,
+    "targetPRLabels": ["{{ .Label }}"],
     "branchLabelMapping": {{ .JSONLabelMappings }}
 }
 {{- end -}}

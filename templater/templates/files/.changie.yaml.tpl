@@ -31,6 +31,8 @@ envPrefix: CHANGIE_
 # https://go.dev/wiki/Modules#what-are-multi-module-repositories
 projectsVersionSeparator: "/"
 projects:
-- label: actions-testing
-  key: actions-testing
-  changelog: CHANGELOG.md
+{{- range $project := .Projects }}
+- label: {{ $project.Name }}
+  key: {{ $project.Name }}
+  changelog: {{ $project.Changelog }}
+{{- end }}

@@ -6,10 +6,3 @@ matches:
     extension: .go
     directory: templater
     license: MIT
-  - delimiter: # defines a custom delimiter pattern to use
-      top: "{{- /*"
-      bottom: "*/ -}}"
-    short: true
-    extension: .tpl
-    directory: templater
-    license: MIT

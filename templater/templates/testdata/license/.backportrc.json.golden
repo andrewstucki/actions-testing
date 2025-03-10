@@ -4,7 +4,7 @@
     "repoName": "repo",
     "autoMerge": true,
     "targetBranchChoices": null,
-    "targetPRLabels": ["backport"],,
+    "targetPRLabels": ["backport"],
     "branchLabelMapping": {
     "^v(\\d+).(\\d+).\\d+$": "v$1.$2.x"
 }

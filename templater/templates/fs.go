@@ -24,6 +24,7 @@ var (
 	defaultGithubBackportBot         = "github-actions[bot]"
 	defaultGithubBackportBotTokenVar = "GITHUB_TOKEN"
 	defaultRenderer                  = &Renderer{}
+	Update                           = &Renderer{IsUpdate: true}
 )
 
 // TemplateInfo is the info to render into our templates.
@@ -152,6 +153,8 @@ type Renderer struct {
 	IgnoreExecutable bool
 	// Suffix adds the given suffix to every file
 	Suffix string
+	// IsUpdate says whether this is a secondary render or not.
+	IsUpdate bool
 }
 
 // Render renders templates to the filesystem using the default renderer.
@@ -181,7 +184,7 @@ func (r *Renderer) RenderTo(directory string, info TemplateInfo) error {
 		}
 
 		_, err := os.Stat(fileName)
-		if os.IsNotExist(err) || !file.Once || r.IgnoreOnce {
+		if (os.IsNotExist(err) || !file.Once || r.IgnoreOnce) && (r.IgnoreOnce || !r.IsUpdate) {
 			permissions := os.FileMode(0644)
 			if file.Executable && !r.IgnoreExecutable {
 				permissions = 0755

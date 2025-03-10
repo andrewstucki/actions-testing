@@ -14,4 +14,5 @@ run `task generate-third-party-licenses`
 | :----------: | :------------: |
 | github.com/spf13/cobra | [Apache-2.0](https://github.com/spf13/cobra/blob/v1.9.1/LICENSE.txt) |
 | github.com/spf13/pflag | [BSD-3-Clause](https://github.com/spf13/pflag/blob/v1.0.6/LICENSE) |
+| gopkg.in/yaml.v3 | [MIT](https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE) |
 

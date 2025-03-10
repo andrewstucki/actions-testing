@@ -4,5 +4,4 @@ matches:
   - type: go
     short: true
     extension: .go
-    directory: .
     license: MIT

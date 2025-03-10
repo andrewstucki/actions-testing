@@ -6,6 +6,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path"
 
 	"github.com/spf13/cobra"
@@ -14,6 +15,8 @@ import (
 	"github.com/andrewstucki/actions-testing/templater/prompt"
 	"github.com/andrewstucki/actions-testing/templater/templates"
 )
+
+var skipTidy bool
 
 // initCmd represents the init command
 var initCmd = &cobra.Command{
@@ -69,9 +72,53 @@ var initCmd = &cobra.Command{
 			fmt.Printf("error writing config file: %v\n", err)
 			os.Exit(1)
 		}
+
+		if !skipTidy {
+			if err := os.Chdir(cfg.GithubInfo.Repository); err != nil {
+				fmt.Printf("error changing directory: %v\n", err)
+				os.Exit(1)
+			}
+
+			if _, err := exec.Command("direnv", "allow").CombinedOutput(); err != nil {
+				fmt.Printf("error running direnv: %v\n", err)
+				os.Exit(1)
+			}
+
+			if _, err := exec.Command("go", "mod", "tidy").CombinedOutput(); err != nil {
+				fmt.Printf("error running go mod tidy: %v\n", err)
+				os.Exit(1)
+			}
+
+			if _, err := exec.Command("git", "init").CombinedOutput(); err != nil {
+				fmt.Printf("error running git: %v\n", err)
+				os.Exit(1)
+			}
+
+			if _, err := exec.Command("git", "add", ".").CombinedOutput(); err != nil {
+				fmt.Printf("error running git: %v\n", err)
+				os.Exit(1)
+			}
+
+			if _, err := exec.Command("nix", "develop", "-c", "licenseupdater").CombinedOutput(); err != nil {
+				fmt.Printf("error running licenseupdater: %v\n", err)
+				os.Exit(1)
+			}
+
+			if _, err := exec.Command("git", "add", ".").CombinedOutput(); err != nil {
+				fmt.Printf("error running git: %v\n", err)
+				os.Exit(1)
+			}
+
+			if _, err := exec.Command("git", "commit", "-m", "initial commit").CombinedOutput(); err != nil {
+				fmt.Printf("error running git: %v\n", err)
+				os.Exit(1)
+			}
+		}
 	},
 }
 
 func init() {
+	initCmd.Flags().BoolVarP(&skipTidy, "skip-tidy", "s", false, "Skip cleaning up the rendered output files")
+
 	rootCmd.AddCommand(initCmd)
 }

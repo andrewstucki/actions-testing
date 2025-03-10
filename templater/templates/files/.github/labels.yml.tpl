@@ -1,6 +1,8 @@
 labels:
-  "v1.0.0":
+  {{- range $version := .Versions }}
+  "{{ $version }}":
     color: "ededed"
+  {{- end }}
   "no-changelog":
     color: "8f1402"
   "stale":

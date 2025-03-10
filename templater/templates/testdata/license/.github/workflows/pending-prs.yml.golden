@@ -11,7 +11,7 @@ jobs:
       - name: Generate Pending PRs list
         id: generate-prs
         run: |
-          ./.github/workflows/scripts/pending-prs slack andrewstucki/actions-testing > payload.json
+          ./.github/workflows/scripts/pending-prs slack org/repo > payload.json
           echo "has-prs=$(cat payload.json | wc -l)" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ github.token }}

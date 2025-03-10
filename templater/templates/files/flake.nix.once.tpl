@@ -42,15 +42,19 @@
             # If the version of the installed binary is important make sure to
             # update TestToolVersions.
             packages = [
+              {{- if .Backports }}
               pkgs.backport
+              {{- end }}
               pkgs.changie # Changelog manager
               pkgs.cobra-cli
               pkgs.gawk # GNU awk, used by some build scripts.
               pkgs.gh
               pkgs.gnused # Stream Editor, used by some build scripts.
               pkgs.go-task
+              {{- if .LicenseManagement }}
               pkgs.go-licenses
               pkgs.licenseupdater
+              {{- end }}
               pkgs.yq-go
             ];
           };

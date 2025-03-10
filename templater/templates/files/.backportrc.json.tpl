@@ -1,12 +1,11 @@
+{{- if .Backports -}}
 {
     "fork": false,
-    "repoOwner": "andrewstucki",
-    "repoName": "actions-testing",
+    "repoOwner": "{{ .Organization }}",
+    "repoName": "{{ .Repository }}",
     "autoMerge": true,
-    "targetBranchChoices": ["v1.0.x"],
-    "targetPRLabels": ["backport"],
-    "branchLabelMapping": {
-      "^v(\\d+).(\\d+).\\d+$": "v$1.$2.x"
-    }
-  }
-  
+    "targetBranchChoices": {{ .JSONBranches }},
+    "targetPRLabels": ["{{ .Label }}"],,
+    "branchLabelMapping": {{ .JSONLabelMappings }}
+}
+{{- end -}}

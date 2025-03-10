@@ -42,7 +42,6 @@
             # If the version of the installed binary is important make sure to
             # update TestToolVersions.
             packages = [
-              pkgs.backport
               pkgs.changie # Changelog manager
               pkgs.cobra-cli
               pkgs.gawk # GNU awk, used by some build scripts.

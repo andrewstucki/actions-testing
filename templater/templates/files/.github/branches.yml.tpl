@@ -1,1 +1,1 @@
-active: ["main"]
+active: {{ .JSONBranchesWithMain }}

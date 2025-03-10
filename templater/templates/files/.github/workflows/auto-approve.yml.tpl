@@ -1,3 +1,4 @@
+{{- if .AutoApproveBackports -}}
 name: Auto-Approve Backport
 
 on:
@@ -9,8 +10,9 @@ jobs:
   approve:
     name: Auto-approve backport
     runs-on: ubuntu-latest
-    if: startsWith(github.head_ref, 'backport/') && (github.actor == 'robo-turtle')
+    if: startsWith(github.head_ref, 'backport/') && (github.actor == '{{ .BackportBot }}')
     permissions:
       pull-requests: write
     steps:
       - uses: hmarr/auto-approve-action@v4
+{{- end -}}

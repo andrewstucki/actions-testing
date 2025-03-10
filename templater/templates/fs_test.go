@@ -51,10 +51,12 @@ func TestRenderTo(t *testing.T) {
 		},
 		"license": {
 			info: TemplateInfo{
-				LicenseManagement: true,
-				Organization:      "org",
-				Repository:        "repo",
-				License:           "MIT",
+				LicenseManagement:    true,
+				Organization:         "org",
+				Repository:           "repo",
+				License:              "MIT",
+				Backports:            true,
+				AutoApproveBackports: true,
 			},
 		},
 		"source": {

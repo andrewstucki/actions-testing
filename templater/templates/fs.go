@@ -6,6 +6,7 @@ package templates
 import (
 	"bytes"
 	"embed"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -19,18 +20,35 @@ var (
 	//go:embed all:files
 	templateFiles embed.FS
 
-	defaultRenderer = &Renderer{}
+	defaultBackportLabel             = "backport"
+	defaultGithubBackportBot         = "github-actions[bot]"
+	defaultGithubBackportBotTokenVar = "GITHUB_TOKEN"
+	defaultRenderer                  = &Renderer{}
 )
 
 // TemplateInfo is the info to render into our templates.
 type TemplateInfo struct {
-	Copyright         string
-	Organization      string
-	Repository        string
-	Versions          []string
-	Source            string
-	License           string
-	LicenseManagement bool
+	Copyright            string
+	Organization         string
+	Repository           string
+	BackportBranches     []string
+	Versions             []string
+	Projects             []ProjectInfo
+	Label                string
+	LabelMapper          map[string]string
+	Source               string
+	License              string
+	BackportBot          string
+	BackportBotTokenVar  string
+	LicenseManagement    bool
+	Backports            bool
+	AutoApproveBackports bool
+}
+
+// ProjectInfo is the info of a project with a mapping to its Changelog
+type ProjectInfo struct {
+	Name      string
+	Changelog string
 }
 
 // NormalizeAndValidate returns an error if the TemplateInfo is invalid
@@ -41,6 +59,26 @@ func (t *TemplateInfo) NormalizeAndValidate() error {
 	}
 	if t.Copyright == "" {
 		t.Copyright = t.Organization
+	}
+	if t.BackportBot == "" {
+		t.BackportBot = defaultGithubBackportBot
+	}
+	if t.BackportBotTokenVar == "" {
+		t.BackportBotTokenVar = defaultGithubBackportBotTokenVar
+	}
+	if t.Label == "" {
+		t.Label = defaultBackportLabel
+	}
+	if len(t.LabelMapper) == 0 {
+		t.LabelMapper = map[string]string{
+			"^v(\\d+).(\\d+).\\d+$": "v$1.$2.x",
+		}
+	}
+	if len(t.Projects) == 0 {
+		t.Projects = append(t.Projects, ProjectInfo{
+			Name:      t.Repository,
+			Changelog: "CHANGELOG.md",
+		})
 	}
 
 	// Validation
@@ -65,6 +103,30 @@ func (t TemplateInfo) GithubURL() string {
 		return github + t.Organization + "/" + t.Repository + "/" + t.Source
 	}
 	return github + t.Organization + "/" + t.Repository
+}
+
+func (t TemplateInfo) JSONBranches() string {
+	branches, err := json.Marshal(t.BackportBranches)
+	if err != nil {
+		panic(fmt.Errorf("creating branches: %w", err))
+	}
+	return string(branches)
+}
+
+func (t TemplateInfo) JSONBranchesWithMain() string {
+	branches, err := json.Marshal(append([]string{"main"}, t.BackportBranches...))
+	if err != nil {
+		panic(fmt.Errorf("creating branches: %w", err))
+	}
+	return string(branches)
+}
+
+func (t TemplateInfo) JSONLabelMappings() string {
+	mappings, err := json.MarshalIndent(t.LabelMapper, "", "    ")
+	if err != nil {
+		panic(fmt.Errorf("creating label mappings: %w", err))
+	}
+	return string(mappings)
 }
 
 // File is the representation of a rendered file.

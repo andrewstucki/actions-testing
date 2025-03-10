@@ -133,6 +133,10 @@ func Run() (*config.ConfigFile, error) {
 
 	// set the rest of our defaults
 	cfg.Backports.Branches = []string{"main"}
+	cfg.Backports.Label = "backport"
+	cfg.Backports.Mappings = map[string]string{
+		"^v(\\d+).(\\d+).\\d+$": "v$1.$2.x",
+	}
 	cfg.Projects = append(cfg.Projects, config.ProjectInfo{
 		Name:      cfg.GithubInfo.Repository,
 		Changelog: "CHANGELOG.md",

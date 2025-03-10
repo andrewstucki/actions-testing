@@ -46,11 +46,10 @@ var initCmd = &cobra.Command{
 			Organization:         cfg.GithubInfo.Organization,
 			Repository:           cfg.GithubInfo.Repository,
 			BackportBranches:     cfg.Backports.Branches,
-			Versions:             cfg.Backports.Versions,
-			Label:                cfg.Backports.Label,
-			LabelMapper:          cfg.Backports.Mappings,
 			BackportBot:          cfg.Backports.Bot.Name,
 			BackportBotTokenVar:  cfg.Backports.Bot.TokenVariable,
+			Label:                cfg.Backports.Label,
+			LabelMapper:          cfg.Backports.Mappings,
 			LicenseManagement:    true,
 			Backports:            true,
 			AutoApproveBackports: true,
@@ -101,6 +100,11 @@ var initCmd = &cobra.Command{
 
 			if _, err := exec.Command("nix", "develop", "-c", "licenseupdater").CombinedOutput(); err != nil {
 				fmt.Printf("error running licenseupdater: %v\n", err)
+				os.Exit(1)
+			}
+
+			if _, err := exec.Command("nix", "develop", "-c", "changie", "merge").CombinedOutput(); err != nil {
+				fmt.Printf("error running changie: %v\n", err)
 				os.Exit(1)
 			}
 

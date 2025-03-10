@@ -27,7 +27,7 @@ type BackportInfo struct {
 	Label    string            `yaml:"label"`
 	Branches []string          `yaml:"branches"`
 	Versions []string          `yaml:"versions"`
-	Mappings map[string]string `yaml:"mappings"`
+	Mappings map[string]string `yaml:"mappings,omitempty"`
 	Bot      BotInfo           `yaml:"bot"`
 }
 

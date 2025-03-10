@@ -7,6 +7,8 @@ run: once
 shopt: [globstar]
 
 tasks:
+  generate:
+    cmds:
 
   pending-prs:
     desc: "Get all pending PRs for watched branches"

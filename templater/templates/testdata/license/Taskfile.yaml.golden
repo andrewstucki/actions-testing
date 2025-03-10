@@ -7,6 +7,11 @@ run: once
 shopt: [globstar]
 
 tasks:
+  generate:
+    cmds:
+      - task: generate-third-party-licenses
+      - task: write-license-headers
+
   generate-third-party-licenses:
     dir: .
     method: checksum
@@ -17,8 +22,8 @@ tasks:
       - ./go.sum
     cmds: 
       - |
-        go-licenses report ./... --template ../support/files/third_party_licenses.md.tpl \
-        --ignore github.com/org/repo > ../third_party_licenses.md
+        go-licenses report ./... --template ./support/files/third_party_licenses.md.tpl \
+        --ignore github.com/org/repo > ./third_party_licenses.md
 
   write-license-headers:
     cmds:

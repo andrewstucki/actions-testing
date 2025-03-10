@@ -123,7 +123,7 @@ func (t TemplateInfo) JSONBranchesWithMain() string {
 }
 
 func (t TemplateInfo) JSONLabelMappings() string {
-	mappings, err := json.MarshalIndent(t.LabelMapper, "", "    ")
+	mappings, err := json.Marshal(t.LabelMapper)
 	if err != nil {
 		panic(fmt.Errorf("creating label mappings: %w", err))
 	}
@@ -184,7 +184,7 @@ func (r *Renderer) RenderTo(directory string, info TemplateInfo) error {
 		}
 
 		_, err := os.Stat(fileName)
-		if (os.IsNotExist(err) || !file.Once || r.IgnoreOnce) && (r.IgnoreOnce || !r.IsUpdate) {
+		if os.IsNotExist(err) || !file.Once || r.IgnoreOnce {
 			permissions := os.FileMode(0644)
 			if file.Executable && !r.IgnoreExecutable {
 				permissions = 0755

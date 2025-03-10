@@ -5,7 +5,5 @@
     "autoMerge": true,
     "targetBranchChoices": null,
     "targetPRLabels": ["backport"],
-    "branchLabelMapping": {
-    "^v(\\d+).(\\d+).\\d+$": "v$1.$2.x"
-}
+    "branchLabelMapping": {"^v(\\d+).(\\d+).\\d+$":"v$1.$2.x"}
 }

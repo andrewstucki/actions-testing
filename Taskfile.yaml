@@ -20,6 +20,14 @@ tasks:
         go-licenses report ./... --template ../support/files/third_party_licenses.md.tpl \
         --ignore github.com/andrewstucki/actions-testing/templater > ../third_party_licenses.md
 
+  build-templater:
+    cmds:
+      - cd templater && go build -o templater .
+
+  templater:
+    cmds:
+      - ./templater/templater
+
   pending-prs:
     desc: "Get all pending PRs for watched branches"
     silent: true

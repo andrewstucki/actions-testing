@@ -12,3 +12,4 @@
 .direnv/
 # task cache directory
 .task/
+/templater/templater

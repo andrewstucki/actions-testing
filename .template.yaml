@@ -1,0 +1,13 @@
+license:
+  copyright: Andrew Stucki
+  license: MIT
+github:
+  organization: andrewstucki
+  repository: actions-testing
+backports:
+  label: backport
+  branches: [v1.0.x]
+  versions: ["1.0.0"]
+  bot:
+    name: robo-turtle
+    token_variable: ROBOTURTLE_TOKEN

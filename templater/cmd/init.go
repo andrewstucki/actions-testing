@@ -46,6 +46,7 @@ var initCmd = &cobra.Command{
 			Organization:         cfg.GithubInfo.Organization,
 			Repository:           cfg.GithubInfo.Repository,
 			BackportBranches:     cfg.Backports.Branches,
+			Versions:             cfg.Backports.Versions,
 			BackportBot:          cfg.Backports.Bot.Name,
 			BackportBotTokenVar:  cfg.Backports.Bot.TokenVariable,
 			Label:                cfg.Backports.Label,

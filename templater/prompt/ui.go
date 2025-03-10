@@ -132,7 +132,8 @@ func Run() (*config.ConfigFile, error) {
 	}
 
 	// set the rest of our defaults
-	cfg.Backports.Branches = []string{"main"}
+	cfg.Backports.Branches = []string{"v0.0.x"}
+	cfg.Backports.Versions = []string{"v0.0.1"}
 	cfg.Backports.Label = "backport"
 	cfg.Backports.Mappings = map[string]string{
 		"^v(\\d+).(\\d+).\\d+$": "v$1.$2.x",

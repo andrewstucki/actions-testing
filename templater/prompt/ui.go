@@ -109,39 +109,49 @@ func Run() (*config.ConfigFile, error) {
 	return cfg, nil
 }
 
-func RunSecretSync(cfg config.ConfigFile) (string, string, bool, error) {
+func RunSecretSync(cfg config.ConfigFile) ([]*config.Secret, bool, error) {
 	prompter := prompt.New()
 
-	tokenPrompt := fmt.Sprintf("Value for %s", cfg.Backports.Bot.TokenVariable)
-	webhookPrompt := "Value for SLACK_WEBHOOK_URL"
-
-	opts := []input.Option{
-		input.WithHelp(true),
-		input.WithEchoMode(input.EchoPassword),
+	values := []string{
+		cfg.Backports.Bot.TokenVariable,
+		"SLACK_WEBHOOK_URL",
 	}
 
-	token, err := prompter.Ask(tokenPrompt).Input("", opts...)
-	if err != nil {
-		return "", "", false, err
-	}
-	webhook, err := prompter.Ask(webhookPrompt).Input("", opts...)
-	if err != nil {
-		return "", "", false, err
+	secrets := []*config.Secret{}
+	names := []string{}
+	getSecret := func(name string) error {
+		askPrompt := fmt.Sprintf("Value for %s", name)
+		response, err := prompter.Ask(askPrompt).Input("", input.WithHelp(true), input.WithEchoMode(input.EchoPassword))
+		if err != nil {
+			return err
+		}
+		response = strings.TrimSpace(response)
+		if response != "" {
+			secrets = append(secrets, &config.Secret{
+				Name:  name,
+				Value: strings.TrimSpace(response),
+			})
+			names = append(names, name)
+		}
+		return nil
 	}
 
-	values := []string{}
-	if token != "" {
-		values = append(values, cfg.Backports.Bot.TokenVariable)
+	for _, value := range values {
+		if err := getSecret(value); err != nil {
+			return nil, false, err
+		}
 	}
-	if webhook != "" {
-		values = append(values, "SLACK_WEBHOOK_URL")
+
+	if len(secrets) == 0 {
+		return nil, false, nil
 	}
-	message := fmt.Sprintf("Do you wish to set %s (only a \"yes\" will continue)", strings.Join(values, " and "))
+
+	message := fmt.Sprintf("Do you wish to set %s (only a \"yes\" will continue)", strings.Join(names, " and "))
 
 	value, err := prompter.Ask(message).Input("", input.WithHelp(true))
 	if err != nil {
-		return "", "", false, err
+		return nil, false, err
 	}
 
-	return token, webhook, strings.TrimSpace(value) == "yes", nil
+	return secrets, strings.TrimSpace(value) == "yes", nil
 }

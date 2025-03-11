@@ -37,3 +37,8 @@ type ConfigFile struct {
 	Projects   []ProjectInfo `yaml:"projects"`
 	Backports  BackportInfo  `yaml:"backports"`
 }
+
+type Secret struct {
+	Name  string
+	Value string
+}

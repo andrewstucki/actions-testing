@@ -58,7 +58,7 @@ var rootCmd = &cobra.Command{
 		}
 
 		if err := templates.Update.RenderTo(".", info); err != nil {
-			fmt.Printf("error reading templates: %v\n", err)
+			fmt.Printf("error rendering templates: %v\n", err)
 			os.Exit(1)
 		}
 	},
@@ -74,5 +74,5 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.Flags().StringVarP(&configFile, "config", "c", ".template.yaml", "Location for the template configuration file.")
+	rootCmd.PersistentFlags().StringVarP(&configFile, "config", "c", ".template.yaml", "Location for the template configuration file.")
 }

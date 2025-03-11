@@ -48,44 +48,7 @@ type field struct {
 	validator      configFunc
 }
 
-// package config
-
-// type LicenseInfo struct {
-// 	Copyright string `yaml:"copyright"`
-// 	License   string `yaml:"license"`
-// }
-
-// type ProjectInfo struct {
-// 	Name      string `yaml:"name"`
-// 	Changelog string `yaml:"changelog"`
-// }
-
-// type GithubInfo struct {
-// 	Organization string `yaml:"organization"`
-// 	Repository   string `yaml:"repository"`
-// }
-
-// type BotInfo struct {
-// 	Name          string `yaml:"name"`
-// 	TokenVariable string `yaml:"token_variable"`
-// }
-
-// type BackportInfo struct {
-// 	Label    string            `yaml:"label"`
-// 	Branches []string          `yaml:"branches"`
-// 	Versions []string          `yaml:"versions"`
-// 	Mappings map[string]string `yaml:"mappings"`
-// 	Bot      BotInfo           `yaml:"bot"`
-// }
-
-// type ConfigFile struct {
-// 	License    LicenseInfo   `yaml:"license"`
-// 	GithubInfo GithubInfo    `yaml:"github"`
-// 	Projects   []ProjectInfo `yaml:"projects"`
-// 	Backports  BackportInfo  `yaml:"backports"`
-// }
-
-var prompts = []field{
+var initPrompts = []field{
 	{prompt: "Name of your project", validator: func(cfg *config.ConfigFile, field string) error {
 		return setFieldNotEmpty(&cfg.GithubInfo.Repository, "project name", field)
 	}},
@@ -110,7 +73,7 @@ func Run() (*config.ConfigFile, error) {
 	cfg := &config.ConfigFile{}
 	prompter := prompt.New()
 
-	for _, field := range prompts {
+	for _, field := range initPrompts {
 		opts := []input.Option{
 			input.WithHelp(true),
 			input.WithValidateFunc(wrapConfigFunc(cfg, field.validator)),
@@ -144,4 +107,41 @@ func Run() (*config.ConfigFile, error) {
 	})
 
 	return cfg, nil
+}
+
+func RunSecretSync(cfg config.ConfigFile) (string, string, bool, error) {
+	prompter := prompt.New()
+
+	tokenPrompt := fmt.Sprintf("Value for %s", cfg.Backports.Bot.TokenVariable)
+	webhookPrompt := "Value for SLACK_WEBHOOK_URL"
+
+	opts := []input.Option{
+		input.WithHelp(true),
+		input.WithEchoMode(input.EchoPassword),
+	}
+
+	token, err := prompter.Ask(tokenPrompt).Input("", opts...)
+	if err != nil {
+		return "", "", false, err
+	}
+	webhook, err := prompter.Ask(webhookPrompt).Input("", opts...)
+	if err != nil {
+		return "", "", false, err
+	}
+
+	values := []string{}
+	if token != "" {
+		values = append(values, cfg.Backports.Bot.TokenVariable)
+	}
+	if webhook != "" {
+		values = append(values, "SLACK_WEBHOOK_URL")
+	}
+	message := fmt.Sprintf("Do you wish to set %s (only a \"yes\" will continue)", strings.Join(values, " and "))
+
+	value, err := prompter.Ask(message).Input("", input.WithHelp(true))
+	if err != nil {
+		return "", "", false, err
+	}
+
+	return token, webhook, strings.TrimSpace(value) == "yes", nil
 }
